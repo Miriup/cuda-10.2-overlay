@@ -1,0 +1,24 @@
+From 9d64613a09eb813b25a18dd4d527319df18cb28e Mon Sep 17 00:00:00 2001
+From: Dirk <dirk@systemication.com>
+Date: Thu, 28 Nov 2024 20:34:02 +0100
+Subject: [PATCH 5/5] forgotten <map> include
+
+---
+ onnx/optimizer/pass_registry.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/onnx/optimizer/pass_registry.h b/onnx/optimizer/pass_registry.h
+index a925b914..790ace6d 100644
+--- a/onnx/optimizer/pass_registry.h
++++ b/onnx/optimizer/pass_registry.h
+@@ -29,6 +29,7 @@
+ #include "onnx/optimizer/passes/split.h"
+ #include "onnx/proto_utils.h"
+ 
++#include <map>
+ #include <unordered_set>
+ #include <vector>
+ 
+-- 
+2.45.2
+

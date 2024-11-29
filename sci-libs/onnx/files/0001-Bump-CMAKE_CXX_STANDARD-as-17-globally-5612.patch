@@ -1,0 +1,109 @@
+From 364aa125579becefe191bb865d679bf6a40b82af Mon Sep 17 00:00:00 2001
+From: Chun-Wei Chen <jacky82226@gmail.com>
+Date: Thu, 26 Oct 2023 15:28:35 -0700
+Subject: [PATCH 1/5] Bump CMAKE_CXX_STANDARD as 17 globally (#5612)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+<!-- - Describe your changes. -->
+- Bump CMAKE_CXX_STANDARD as 17 globally (Windows and non-Windows).
+- Update README.md accordingly.
+
+<!-- - Why is this change required? What problem does it solve? -->
+<!-- - If it fixes an open issue, please link to the issue here. -->
+Currently by default onnx uses CMAKE_CXX_STANDARD 17 on Windows, but by
+contrast it uses CMAKE_CXX_STANDARD 14 on other platforms. It's a bit
+confusing. Also it blocks onnx utilizing C++ 17 features. Trying this PR
+to verify ONNX CI Pipelines with this update. If no one has other
+concern, we will target next release (possibly 1.16) to include this
+CMAKE_CXX_STANDARD bump. Users who build their onnx from their own are
+still able to specify their own CMAKE_CXX_STANDARD version.
+
+Anyone has any question/concern, feel free to chime in. Thanks!
+
+<!--
+copilot:all
+-->
+
+🧹🔄📝
+
+<!--
+1. 🧹 - This emoji represents the simplification and cleanup of the CMake
+logic for setting the C++ standard version.
+2. 🔄 - This emoji represents the consistency and alignment of the C++
+standard version across platforms and the possibility of overriding it
+with a custom value.
+3. 📝 - This emoji represents the documentation update in the README.md
+file.
+-->
+Simplify and unify the C++ standard version setting for ONNX. Update the
+`README.md` file accordingly.
+
+> _`CMAKE_CXX_STANDARD`_
+> _Simpler and consistent now_
+> _Autumn of cleanup_
+
+* Simplify CMake logic for setting C++ standard version
+([link](https://github.com/onnx/onnx/pull/5612/files?diff=unified&w=0#diff-1e7de1ae2d059d21e1dd75d5812d5a34b0222cef273b7c3a2af62eb747f9d20aL58-R59))
+* Update README documentation to match CMake changes
+([link](https://github.com/onnx/onnx/pull/5612/files?diff=unified&w=0#diff-b335630551682c19a781afebcf4d07bf978fb1f8ac04c6bf87428ed5106870f5L114-R114))
+
+---------
+
+Signed-off-by: Chun-Wei Chen <jacky82226@gmail.com>
+Co-authored-by: Xavier Dupré <xadupre@users.noreply.github.com>
+Co-authored-by: G. Ramalingam <grama@microsoft.com>
+(cherry picked from commit b5e1378a35b24a4316900c69b71214cac7ca5736)
+---
+ CMakeLists.txt |  9 +++++----
+ README.md      | 13 ++++++++++---
+ 2 files changed, 15 insertions(+), 7 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5254f7ee..23c8cba0 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -52,10 +52,11 @@ endif()
+   endif()
+ endif()
+ 
+-# Set C++11 as standard for the whole project
+-if(NOT MSVC)
+-  set(CMAKE_CXX_STANDARD 11)
+-endif(NOT MSVC)
++if(NOT DEFINED CMAKE_CXX_STANDARD)
++  set(CMAKE_CXX_STANDARD 17)
++endif()
++
++include(GNUInstallDirs)
+ 
+ set(ONNX_ROOT ${PROJECT_SOURCE_DIR})
+ 
+diff --git a/README.md b/README.md
+index ee016d33..32abc1a3 100644
+--- a/README.md
++++ b/README.md
+@@ -64,9 +64,16 @@ You will need an install of Protobuf and NumPy to build ONNX.  One easy
+ way to get these dependencies is via
+ [Anaconda](https://www.anaconda.com/download/):
+ 
+-```
+-# Use conda-forge protobuf, as default doesn't come with protoc
+-conda install -c conda-forge protobuf numpy
++c++17 or higher C++ compiler version is required to build ONNX from source. Still, users can specify their own `CMAKE_CXX_STANDARD` version for building ONNX.
++
++If you don't have protobuf installed, ONNX will internally download and build protobuf for ONNX build.
++
++Or, you can manually install [protobuf C/C++ libraries and tools](https://github.com/protocolbuffers/protobuf) with specified version before proceeding forward. Then depending on how you installed protobuf, you need to set environment variable CMAKE_ARGS to "-DONNX_USE_PROTOBUF_SHARED_LIBS=ON" or "-DONNX_USE_PROTOBUF_SHARED_LIBS=OFF".  For example, you may need to run the following command:
++
++Linux:
++
++```sh
++export CMAKE_ARGS="-DONNX_USE_PROTOBUF_SHARED_LIBS=ON"
+ ```
+ 
+ You can then install ONNX from PyPi (Note: Set environment variable `ONNX_ML=1` for onnx-ml):
+-- 
+2.45.2
+

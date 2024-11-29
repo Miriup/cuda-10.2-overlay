@@ -1,0 +1,26 @@
+From c255aaa27e7bf4422cb90a75f67e7f1850ed903a Mon Sep 17 00:00:00 2001
+From: Changming Sun <chasun@microsoft.com>
+Date: Thu, 13 Apr 2023 15:04:50 -0700
+Subject: [PATCH 3/5] Add a missing header file (#5120)
+
+Signed-off-by: Changming Sun <chasun@microsoft.com>
+(cherry picked from commit 9ab7032859e06cac72b76867fe442fd4e05bb098)
+---
+ onnx/defs/schema.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/onnx/defs/schema.h b/onnx/defs/schema.h
+index 3b28461f..9274e5c2 100644
+--- a/onnx/defs/schema.h
++++ b/onnx/defs/schema.h
+@@ -9,6 +9,7 @@
+ #include <initializer_list>
+ #include <iostream>
+ #include <limits>
++#include <map>
+ #include <memory>
+ #include <ostream>
+ #include <set>
+-- 
+2.45.2
+

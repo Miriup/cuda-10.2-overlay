@@ -1,0 +1,43 @@
+From 51220bcd4e81356fb3003e0d1bfe9875b1707a1b Mon Sep 17 00:00:00 2001
+From: Ilya Lavrenov <ilya.lavrenov@intel.com>
+Date: Tue, 27 Jun 2023 07:41:55 +0400
+Subject: [PATCH 2/5] Allow to override cmake options from cmd options,
+ external projects (#5355)
+
+- Allow to override CMAKE_CXX_STANDARD and
+CMAKE_POSITION_INDEPENDENT_CODE
+
+- CMAKE_POSITION_INDEPENDENT_CODE is not required for cases when static
+library is compiled into executable. So, we need to a way to disable
+`CMAKE_POSITION_INDEPENDENT_CODE=ON`
+- Protobuf depends on ABSL library, which requires CXX17. So, when we
+compile against latest versions of protobuf and ABSL, we need to set
+CXX17, but ONNX overrides these values to CXX14. So, we need an option
+to override the project default values.
+
+Signed-off-by: Ilya Lavrenov <ilya.lavrenov@intel.com>
+Co-authored-by: Chun-Wei Chen <jacky82226@gmail.com>
+(cherry picked from commit 8a980683df9acbcb82dc3385fc7eb8cce4ed840f)
+---
+ CMakeLists.txt | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 23c8cba0..8aa3ac2b 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -88,6 +88,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "AIX")
+   set(CMAKE_NO_SYSTEM_FROM_IMPORTED 1)
+ endif()
+ 
++# Build the libraries with -fPIC including the protobuf lib.
++if(NOT DEFINED CMAKE_POSITION_INDEPENDENT_CODE)
++  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
++endif()
++
+ if(ONNX_BUILD_TESTS)
+   list(APPEND CMAKE_MODULE_PATH ${ONNX_ROOT}/cmake/external)
+   include(googletest)
+-- 
+2.45.2
+
