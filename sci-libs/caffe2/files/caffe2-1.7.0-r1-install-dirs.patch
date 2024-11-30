@@ -1,0 +1,144 @@
+From 7039b18242ffa8742dfb83585fc36698b9d98068 Mon Sep 17 00:00:00 2001
+From: Dirk <dirk@systemication.com>
+Date: Tue, 26 Nov 2024 23:32:15 +0100
+Subject: [PATCH 1/2] caffe2-1.13.0-install-dirs.patch
+
+(cherry picked from commit 5a440bb16b3eebcc801c724f8e32ce45834806fc)
+---
+ c10/CMakeLists.txt                 | 2 +-
+ c10/cuda/CMakeLists.txt            | 2 +-
+ c10/hip/CMakeLists.txt             | 2 +-
+ modules/detectron/CMakeLists.txt   | 6 +++---
+ modules/module_test/CMakeLists.txt | 2 +-
+ modules/observers/CMakeLists.txt   | 2 +-
+ modules/rocksdb/CMakeLists.txt     | 2 +-
+ test/cpp/jit/CMakeLists.txt        | 4 ++--
+ 8 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/c10/CMakeLists.txt b/c10/CMakeLists.txt
+index 818226cdc8..9c2fa65586 100644
+--- a/c10/CMakeLists.txt
++++ b/c10/CMakeLists.txt
+@@ -105,7 +105,7 @@ endif()
+ # Note: for now, we will put all export path into one single Caffe2Targets group
+ # to deal with the cmake deployment need. Inside the Caffe2Targets set, the
+ # individual libraries like libc10.so and libcaffe2.so are still self-contained.
+-install(TARGETS c10 EXPORT Caffe2Targets DESTINATION lib)
++install(TARGETS c10 EXPORT Caffe2Targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+         DESTINATION include
+         FILES_MATCHING PATTERN "*.h")
+diff --git a/c10/cuda/CMakeLists.txt b/c10/cuda/CMakeLists.txt
+index c8fa53df6f..b305413eb8 100644
+--- a/c10/cuda/CMakeLists.txt
++++ b/c10/cuda/CMakeLists.txt
+@@ -64,7 +64,7 @@ add_subdirectory(test)
+ # Note: for now, we will put all export path into one single Caffe2Targets group
+ # to deal with the cmake deployment need. Inside the Caffe2Targets set, the
+ # individual libraries like libc10.so and libcaffe2.so are still self-contained.
+-install(TARGETS c10_cuda EXPORT Caffe2Targets DESTINATION lib)
++install(TARGETS c10_cuda EXPORT Caffe2Targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ foreach(file ${C10_CUDA_HEADERS})
+   get_filename_component( dir ${file} DIRECTORY )
+   install( FILES ${file} DESTINATION include/c10/cuda/${dir} )
+diff --git a/c10/hip/CMakeLists.txt b/c10/hip/CMakeLists.txt
+index 6a0e0e41a1..7582c73919 100644
+--- a/c10/hip/CMakeLists.txt
++++ b/c10/hip/CMakeLists.txt
+@@ -55,7 +55,7 @@ target_include_directories(
+ add_subdirectory(test)
+ 
+ # ---[ Installation
+-install(TARGETS c10_hip EXPORT Caffe2Targets DESTINATION lib)
++install(TARGETS c10_hip EXPORT Caffe2Targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+         DESTINATION include
+         FILES_MATCHING PATTERN "*.h")
+diff --git a/modules/detectron/CMakeLists.txt b/modules/detectron/CMakeLists.txt
+index 8041e71d35..57a3d2fc4b 100644
+--- a/modules/detectron/CMakeLists.txt
++++ b/modules/detectron/CMakeLists.txt
+@@ -17,7 +17,7 @@ if(BUILD_CAFFE2_OPS)
+ 
+     torch_set_target_props(caffe2_detectron_ops_gpu)
+     target_link_libraries(caffe2_detectron_ops_gpu torch ${OpenMP_link})
+-    install(TARGETS caffe2_detectron_ops_gpu DESTINATION lib)
++    install(TARGETS caffe2_detectron_ops_gpu DESTINATION ${CMAKE_INSTALL_LIBDIR})
+     if(MSVC)
+       install(FILES $<TARGET_PDB_FILE:caffe2_detectron_ops_gpu> DESTINATION lib OPTIONAL)
+     endif()
+@@ -31,7 +31,7 @@ if(BUILD_CAFFE2_OPS)
+     torch_set_target_props(caffe2_detectron_ops_hip)
+     target_compile_options(caffe2_detectron_ops_hip PRIVATE ${HIP_CXX_FLAGS})
+     target_link_libraries(caffe2_detectron_ops_hip torch)
+-    install(TARGETS caffe2_detectron_ops_hip DESTINATION lib)
++    install(TARGETS caffe2_detectron_ops_hip DESTINATION ${CMAKE_INSTALL_LIBDIR})
+   elseif(NOT IOS_PLATFORM)
+     add_library(caffe2_detectron_ops SHARED ${Detectron_CPU_SRCS})
+     if(HAVE_SOVERSION)
+@@ -40,7 +40,7 @@ if(BUILD_CAFFE2_OPS)
+     endif()
+     torch_set_target_props(caffe2_detectron_ops)
+     target_link_libraries(caffe2_detectron_ops torch ${OpenMP_link})
+-    install(TARGETS caffe2_detectron_ops DESTINATION lib)
++    install(TARGETS caffe2_detectron_ops DESTINATION ${CMAKE_INSTALL_LIBDIR})
+     if(MSVC)
+       install(FILES $<TARGET_PDB_FILE:caffe2_detectron_ops> DESTINATION lib OPTIONAL)
+     endif()
+diff --git a/modules/module_test/CMakeLists.txt b/modules/module_test/CMakeLists.txt
+index 696bd5db10..f476fa034d 100644
+--- a/modules/module_test/CMakeLists.txt
++++ b/modules/module_test/CMakeLists.txt
+@@ -16,7 +16,7 @@ if(BUILD_TEST)
+         VERSION ${TORCH_VERSION} SOVERSION ${TORCH_SOVERSION})
+   endif()
+   target_link_libraries(caffe2_module_test_dynamic torch_library)
+-  install(TARGETS caffe2_module_test_dynamic DESTINATION lib)
++  install(TARGETS caffe2_module_test_dynamic DESTINATION ${CMAKE_INSTALL_LIBDIR})
+   if(MSVC AND BUILD_SHARED_LIBS)
+     install(FILES $<TARGET_PDB_FILE:caffe2_module_test_dynamic> DESTINATION lib OPTIONAL)
+   endif()
+diff --git a/modules/observers/CMakeLists.txt b/modules/observers/CMakeLists.txt
+index 8796354dc8..391e4a5024 100644
+--- a/modules/observers/CMakeLists.txt
++++ b/modules/observers/CMakeLists.txt
+@@ -21,7 +21,7 @@ endif()
+ target_link_libraries(caffe2_observers PUBLIC torch_library)
+ target_include_directories(caffe2_observers PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
+ target_compile_options(caffe2_observers PRIVATE "-DCAFFE2_BUILD_OBSERVER_LIB")
+-install(TARGETS caffe2_observers DESTINATION lib)
++install(TARGETS caffe2_observers DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ caffe2_interface_library(caffe2_observers caffe2_observers_library)
+ if(MSVC AND BUILD_SHARED_LIBS)
+   install(FILES $<TARGET_PDB_FILE:caffe2_observers> DESTINATION lib OPTIONAL)
+diff --git a/modules/rocksdb/CMakeLists.txt b/modules/rocksdb/CMakeLists.txt
+index 78651989aa..52bfd149a2 100644
+--- a/modules/rocksdb/CMakeLists.txt
++++ b/modules/rocksdb/CMakeLists.txt
+@@ -59,7 +59,7 @@ add_library(caffe2_rocksdb ${CMAKE_CURRENT_SOURCE_DIR}/rocksdb.cc)
+ target_link_libraries(caffe2_rocksdb PUBLIC torch_library)
+ target_link_libraries(caffe2_rocksdb PRIVATE ${RocksDB_LIBRARIES})
+ target_include_directories(caffe2_rocksdb PRIVATE ${RocksDB_INCLUDE_DIR})
+-install(TARGETS caffe2_rocksdb DESTINATION lib)
++install(TARGETS caffe2_rocksdb DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ 
+ # ---[ Last, Append the library to Caffe2_MODULES, if we are building with
+ # the main repo.
+diff --git a/test/cpp/jit/CMakeLists.txt b/test/cpp/jit/CMakeLists.txt
+index 2d135befd8..798b2bb69d 100644
+--- a/test/cpp/jit/CMakeLists.txt
++++ b/test/cpp/jit/CMakeLists.txt
+@@ -12,8 +12,8 @@ add_library(jitbackend_test SHARED ${JIT_TEST_ROOT}/test_backend.cpp)
+ target_link_libraries(jitbackend_test torch)
+ 
+ if(INSTALL_TEST)
+-  install(TARGETS torchbind_test DESTINATION lib)
+-  install(TARGETS jitbackend_test DESTINATION lib)
++  install(TARGETS torchbind_test DESTINATION ${CMAKE_INSTALL_LIBDIR})
++  install(TARGETS jitbackend_test DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ endif()
+ 
+ 
+-- 
+2.45.2
+

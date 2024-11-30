@@ -1,0 +1,42 @@
+From 22819b73e0c74919f700191d9927f702866e9601 Mon Sep 17 00:00:00 2001
+From: Dirk <dirk@systemication.com>
+Date: Tue, 26 Nov 2024 23:33:08 +0100
+Subject: [PATCH 2/2] caffe2-1.12.0-glog-0.6.0.patch
+
+(cherry picked from commit 1ea80c888d9d60ce16eb065025251adf05f97ade)
+---
+ c10/util/Logging.cpp | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
+
+diff --git a/c10/util/Logging.cpp b/c10/util/Logging.cpp
+index 14b336a794..408360a22c 100644
+--- a/c10/util/Logging.cpp
++++ b/c10/util/Logging.cpp
+@@ -152,23 +152,13 @@ C10_DEFINE_int(
+     google::GLOG_WARNING,
+     "The minimum log level that caffe2 will output.");
+ 
+-// Google glog's api does not have an external function that allows one to check
+-// if glog is initialized or not. It does have an internal function - so we are
+-// declaring it here. This is a hack but has been used by a bunch of others too
+-// (e.g. Torch).
+-namespace google {
+-namespace glog_internal_namespace_ {
+-bool IsGoogleLoggingInitialized();
+-} // namespace glog_internal_namespace_
+-} // namespace google
+-
+ namespace c10 {
+ bool InitCaffeLogging(int* argc, char** argv) {
+   if (*argc == 0)
+     return true;
+ #if !defined(_MSC_VER)
+   // This trick can only be used on UNIX platforms
+-  if (!::google::glog_internal_namespace_::IsGoogleLoggingInitialized())
++  if (!::google::IsGoogleLoggingInitialized())
+ #endif
+   {
+     ::google::InitGoogleLogging(argv[0]);
+-- 
+2.45.2
+

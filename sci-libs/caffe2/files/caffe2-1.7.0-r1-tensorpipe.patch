@@ -1,0 +1,25 @@
+From 29db595657df9e4dce4ca01a616a672053aeaf78 Mon Sep 17 00:00:00 2001
+From: Dirk <dirk@systemication.com>
+Date: Tue, 26 Nov 2024 23:52:48 +0100
+Subject: [PATCH] caffe2-1.13.1-tensorpipe.patch
+
+(cherry picked from commit 4bb35c999f51955f32acb43119fcd74f579870f2)
+---
+ cmake/Dependencies.cmake | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/cmake/Dependencies.cmake b/cmake/Dependencies.cmake
+index 04e51258c2..50aac8c20c 100644
+--- a/cmake/Dependencies.cmake
++++ b/cmake/Dependencies.cmake
+@@ -1316,6 +1316,7 @@ if(USE_DISTRIBUTED AND USE_TENSORPIPE)
+ 
+     add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/tensorpipe)
+ 
++    # FIXME Do I have to delete the line below?
+     list(APPEND Caffe2_DEPENDENCY_LIBS tensorpipe)
+   endif()
+ endif()
+-- 
+2.45.2
+

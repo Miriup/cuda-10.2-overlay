@@ -1,0 +1,216 @@
+From 25fbd6f474f4a59e9064313654ef5855b214ee86 Mon Sep 17 00:00:00 2001
+From: Dirk <dirk@systemication.com>
+Date: Tue, 26 Nov 2024 21:07:21 +0100
+Subject: [PATCH 2/2] caffe2-1.13.0-gentoo.patch
+
+---
+ CMakeLists.txt              |  7 +------
+ caffe2/CMakeLists.txt       |  3 +--
+ cmake/Codegen.cmake         |  2 +-
+ cmake/Dependencies.cmake    | 12 ++++--------
+ cmake/External/nnpack.cmake |  2 +-
+ cmake/public/utils.cmake    |  1 -
+ torch/CMakeLists.txt        |  6 ------
+ torch/csrc/Exceptions.cpp   |  5 ++---
+ 8 files changed, 10 insertions(+), 28 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0d1225ab45..f62bc0807e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -557,13 +557,12 @@ endif()
+ set(CMAKE_C_STANDARD 11)
+ set(CMAKE_CXX_STANDARD 14)
+ if(NOT MSVC)
+-  string(APPEND CMAKE_CXX_FLAGS " -O2 -fPIC")
++  string(APPEND CMAKE_CXX_FLAGS " -fPIC")
+   string(APPEND CMAKE_CXX_FLAGS " -Wno-narrowing")
+   # Eigen fails to build with some versions, so convert this to a warning
+   # Details at http://eigen.tuxfamily.org/bz/show_bug.cgi?id=1459
+   string(APPEND CMAKE_CXX_FLAGS " -Wall")
+   string(APPEND CMAKE_CXX_FLAGS " -Wextra")
+-  string(APPEND CMAKE_CXX_FLAGS " -Werror=return-type")
+   string(APPEND CMAKE_CXX_FLAGS " -Wno-missing-field-initializers")
+   string(APPEND CMAKE_CXX_FLAGS " -Wno-type-limits")
+   string(APPEND CMAKE_CXX_FLAGS " -Wno-array-bounds")
+@@ -630,10 +629,6 @@ if(NOT MSVC)
+   string(APPEND CMAKE_LINKER_FLAGS_DEBUG " -fno-omit-frame-pointer -O0")
+   string(APPEND CMAKE_CXX_FLAGS " -fno-math-errno")
+   string(APPEND CMAKE_CXX_FLAGS " -fno-trapping-math")
+-  check_cxx_compiler_flag("-Werror=format" HAS_WERROR_FORMAT)
+-  if(HAS_WERROR_FORMAT)
+-    string(APPEND CMAKE_CXX_FLAGS " -Werror=format")
+-  endif()
+ endif()
+ 
+ if(USE_ASAN)
+diff --git a/caffe2/CMakeLists.txt b/caffe2/CMakeLists.txt
+index eeb4801577..008b4a6f27 100644
+--- a/caffe2/CMakeLists.txt
++++ b/caffe2/CMakeLists.txt
+@@ -98,7 +98,7 @@ endif()
+ # Note: the folders that are being commented out have not been properly
+ # addressed yet.
+ 
+-if(NOT MSVC AND USE_XNNPACK)
++if(FALSE)
+   if(NOT TARGET fxdiv)
+     set(FXDIV_BUILD_TESTS OFF CACHE BOOL "")
+     set(FXDIV_BUILD_BENCHMARKS OFF CACHE BOOL "")
+@@ -770,7 +770,6 @@ endif()
+ 
+ 
+ if(NOT MSVC AND USE_XNNPACK)
+-  TARGET_LINK_LIBRARIES(torch_cpu PRIVATE fxdiv)
+ endif()
+ 
+ # ==========================================================
+diff --git a/cmake/Codegen.cmake b/cmake/Codegen.cmake
+index dbfd55e2d0..dc49ba970b 100644
+--- a/cmake/Codegen.cmake
++++ b/cmake/Codegen.cmake
+@@ -57,7 +57,7 @@ if(INTERN_BUILD_ATEN_OPS)
+   if(MSVC)
+     set(OPT_FLAG "/fp:strict ")
+   else(MSVC)
+-    set(OPT_FLAG "-O3 ")
++    set(OPT_FLAG " ")
+     if("${CMAKE_BUILD_TYPE}" MATCHES "Debug")
+       set(OPT_FLAG " ")
+     endif()
+diff --git a/cmake/Dependencies.cmake b/cmake/Dependencies.cmake
+index 023bbe9e8d..04e51258c2 100644
+--- a/cmake/Dependencies.cmake
++++ b/cmake/Dependencies.cmake
+@@ -362,7 +362,7 @@ endif()
+ list(APPEND Caffe2_DEPENDENCY_LIBS cpuinfo)
+ 
+ # ---[ QNNPACK
+-if(USE_QNNPACK)
++if(FALSE)
+   set(CAFFE2_THIRD_PARTY_ROOT "${PROJECT_SOURCE_DIR}/third_party")
+ 
+   if(NOT DEFINED QNNPACK_SOURCE_DIR)
+@@ -412,7 +412,7 @@ if(USE_QNNPACK)
+ endif()
+ 
+ # ---[ Caffe2 Int8 operators (enabled by USE_QNNPACK) depend on gemmlowp and neon2sse headers
+-if(USE_QNNPACK)
++if(FALSE)
+   set(CAFFE2_THIRD_PARTY_ROOT "${PROJECT_SOURCE_DIR}/third_party")
+   include_directories(SYSTEM "${CAFFE2_THIRD_PARTY_ROOT}/gemmlowp")
+   include_directories(SYSTEM "${CAFFE2_THIRD_PARTY_ROOT}/neon2sse")
+@@ -650,7 +650,7 @@ if(BUILD_TEST OR BUILD_MOBILE_BENCHMARK OR BUILD_MOBILE_TEST)
+ endif()
+ 
+ # ---[ FBGEMM
+-if(USE_FBGEMM)
++if(FALSE)
+   set(CAFFE2_THIRD_PARTY_ROOT "${PROJECT_SOURCE_DIR}/third_party")
+   if(NOT DEFINED FBGEMM_SOURCE_DIR)
+     set(FBGEMM_SOURCE_DIR "${CAFFE2_THIRD_PARTY_ROOT}/fbgemm" CACHE STRING "FBGEMM source directory")
+@@ -692,6 +692,7 @@ endif()
+ if(USE_FBGEMM)
+   set(CAFFE2_THIRD_PARTY_ROOT "${PROJECT_SOURCE_DIR}/third_party")
+   include_directories(SYSTEM "${CAFFE2_THIRD_PARTY_ROOT}")
++  list(APPEND Caffe2_DEPENDENCY_LIBS fbgemm)
+   caffe2_update_option(USE_FBGEMM ON)
+ else()
+   caffe2_update_option(USE_FBGEMM OFF)
+@@ -1395,7 +1396,6 @@ if(CAFFE2_CMAKE_BUILDING_WITH_MAIN_REPO AND NOT INTERN_DISABLE_ONNX)
+   if(NOT USE_SYSTEM_ONNX)
+     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../third_party/onnx EXCLUDE_FROM_ALL)
+   endif()
+-  add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../third_party/foxi EXCLUDE_FROM_ALL)
+ 
+   add_definitions(-DONNX_NAMESPACE=${ONNX_NAMESPACE})
+   if(NOT USE_SYSTEM_ONNX)
+@@ -1731,8 +1731,6 @@ endif()
+ # End ATen checks
+ #
+ 
+-add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/fmt)
+-
+ # Disable compiler feature checks for `fmt`.
+ #
+ # CMake compiles a little program to check compiler features. Some of our build
+@@ -1740,6 +1738,4 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/fmt)
+ # CMAKE_CXX_FLAGS in ways that break feature checks. Since we already know
+ # `fmt` is compatible with a superset of the compilers that PyTorch is, it
+ # shouldn't be too bad to just disable the checks.
+-set_target_properties(fmt-header-only PROPERTIES INTERFACE_COMPILE_FEATURES "")
+ 
+-list(APPEND Caffe2_DEPENDENCY_LIBS fmt::fmt-header-only)
+diff --git a/cmake/External/nnpack.cmake b/cmake/External/nnpack.cmake
+index 84244dc864..a9f38f1b8e 100644
+--- a/cmake/External/nnpack.cmake
++++ b/cmake/External/nnpack.cmake
+@@ -58,7 +58,7 @@ if(ANDROID OR IOS OR ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAM
+   set(PTHREADPOOL_SOURCE_DIR "${CAFFE2_THIRD_PARTY_ROOT}/pthreadpool" CACHE STRING "pthreadpool source directory")
+   set(GOOGLETEST_SOURCE_DIR "${CAFFE2_THIRD_PARTY_ROOT}/googletest" CACHE STRING "Google Test source directory")
+ 
+-  if(NOT TARGET nnpack)
++  if(FALSE)
+     if(NOT USE_SYSTEM_PTHREADPOOL AND USE_INTERNAL_PTHREADPOOL_IMPL)
+       set(NNPACK_CUSTOM_THREADPOOL ON CACHE BOOL "")
+     endif()
+diff --git a/cmake/public/utils.cmake b/cmake/public/utils.cmake
+index 0425eaee46..1a0f35983a 100644
+--- a/cmake/public/utils.cmake
++++ b/cmake/public/utils.cmake
+@@ -290,7 +290,6 @@ function(torch_compile_options libname)
+   endif()
+ 
+   # Use -O2 for release builds (-O3 doesn't improve perf, and -Os results in perf regression)
+-  target_compile_options(${libname} PRIVATE "$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:-O2>")
+ 
+   # ---[ Check if warnings should be errors.
+   # TODO: Dedupe with WERROR check above
+diff --git a/torch/CMakeLists.txt b/torch/CMakeLists.txt
+index e5b6e36251..1b177c9557 100644
+--- a/torch/CMakeLists.txt
++++ b/torch/CMakeLists.txt
+@@ -63,13 +63,8 @@ set(TORCH_PYTHON_INCLUDE_DIRECTORIES
+     ${CMAKE_BINARY_DIR}
+     ${CMAKE_BINARY_DIR}/aten/src
+     ${CMAKE_BINARY_DIR}/caffe2/aten/src
+-    ${CMAKE_BINARY_DIR}/third_party
+-    ${CMAKE_BINARY_DIR}/third_party/onnx
+ 
+-    ${TORCH_ROOT}/third_party/valgrind-headers
+ 
+-    ${TORCH_ROOT}/third_party/gloo
+-    ${TORCH_ROOT}/third_party/onnx
+     ${pybind11_INCLUDE_DIRS}
+ 
+     ${TORCH_SRC_DIR}/csrc
+@@ -83,7 +78,7 @@ list(APPEND TORCH_PYTHON_INCLUDE_DIRECTORIES ${LIBSHM_SRCDIR})
+ set(TORCH_PYTHON_LINK_LIBRARIES
+     torch_library
+     shm
+-    fmt::fmt-header-only)
++    )
+ 
+ set(TORCH_PYTHON_COMPILE_DEFINITIONS)
+ 
+diff --git a/torch/csrc/Exceptions.cpp b/torch/csrc/Exceptions.cpp
+index eb735b73d5..f39b49eb41 100644
+--- a/torch/csrc/Exceptions.cpp
++++ b/torch/csrc/Exceptions.cpp
+@@ -1,11 +1,10 @@
+ #include <torch/csrc/Exceptions.h>
+ #include <torch/csrc/python_headers.h>
+ 
+-#include <utility>
+-#include <vector>
++#include <array>
+ #include <cstdarg>
+ #include <exception>
+-#include <sstream>
++#include <utility>
+ 
+ #include <torch/csrc/THP.h>
+ 
+-- 
+2.45.2
+
