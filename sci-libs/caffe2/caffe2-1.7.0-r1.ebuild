@@ -21,7 +21,7 @@ EGIT_COMMIT="v${PV}"
 EGIT_CLONE_TYPE="shallow"	# libeigen/eigen is large
 EGIT_CHECKOUT_DIR="${MYP}"
 # Use from system, see src_configure
-EGIT_SUBMODULES=( '*' "-third_party/eigen" "-third_party/pthreadpool"  "-third_party/gloo" "-third_party/onnx" "-third_party/sleef" )
+EGIT_SUBMODULES=( '*' "-third_party/eigen" "-third_party/pthreadpool"  "-third_party/gloo" "-third_party/onnx" "-third_party/sleef" "-third_party/fmt" )
 # Dirk: github repo is broken and I don't understand why the COMMIT ID differs.
 EGIT_OVERRIDE_REPO_EIGENTEAM_EIGEN_GIT_MIRROR=https://gitlab.com/libeigen/eigen.git
 EGIT_OVERRIDE_COMMIT_EIGENTEAM_EIGEN_GIT_MIRROR=71429883ee41689fd657cdca824459f38ae53423
@@ -49,7 +49,7 @@ RDEPEND="
 	dev-libs/libfmt
 	<dev-libs/protobuf-21.13:=
 	dev-libs/pthreadpool
-	dev-libs/sleef
+	<dev-libs/sleef-3.7
 	sci-libs/lapack
 	sci-libs/onnx
 	sci-libs/foxi
@@ -64,7 +64,7 @@ RDEPEND="
 	mpi? ( sys-cluster/openmpi )
 	nnpack? ( sci-libs/NNPACK )
 	numpy? ( $(python_gen_cond_dep '
-		dev-python/numpy[${PYTHON_USEDEP}]
+		<dev-python/numpy-2.0[${PYTHON_USEDEP}]
 		') )
 	opencl? ( virtual/opencl )
 	opencv? ( media-libs/opencv:= )
@@ -86,6 +86,9 @@ DEPEND="
 		dev-python/pyyaml[${PYTHON_USEDEP}]
 		dev-python/pybind11[${PYTHON_USEDEP}]
 	')
+"
+BDEPEND="
+	sys-devel/gcc:8.5.0
 "
 
 S="${WORKDIR}"/${MYP}
@@ -184,6 +187,7 @@ src_configure() {
 
 		mycmakeargs+=(
 			-DCMAKE_CUDA_FLAGS="$(cuda_gccdir -f | tr -d \")"
+			-DCMAKE_CUDA_HOST_COMPILER=/usr/bin/x86_64-pc-linux-gnu-g++-8.5.0
 		)
 	fi
 	cmake_src_configure
