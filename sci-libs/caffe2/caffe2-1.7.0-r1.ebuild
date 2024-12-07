@@ -21,7 +21,7 @@ EGIT_COMMIT="v${PV}"
 EGIT_CLONE_TYPE="shallow"	# libeigen/eigen is large
 EGIT_CHECKOUT_DIR="${MYP}"
 # Use from system, see src_configure
-EGIT_SUBMODULES=( '*' "-third_party/eigen" "-third_party/pthreadpool"  "-third_party/gloo" "-third_party/onnx" "-third_party/sleef" "-third_party/fmt" )
+EGIT_SUBMODULES=( '*' "-third_party/eigen" "-third_party/pthreadpool"  "-third_party/gloo" "-third_party/onnx" "-third_party/sleef" "-third_party/fmt" "-third_party/onnx-tensorrt/third_party/onnx" "-third_party/protobuf" )
 # Dirk: github repo is broken and I don't understand why the COMMIT ID differs.
 EGIT_OVERRIDE_REPO_EIGENTEAM_EIGEN_GIT_MIRROR=https://gitlab.com/libeigen/eigen.git
 EGIT_OVERRIDE_COMMIT_EIGENTEAM_EIGEN_GIT_MIRROR=71429883ee41689fd657cdca824459f38ae53423
@@ -51,7 +51,7 @@ RDEPEND="
 	dev-libs/pthreadpool
 	<dev-libs/sleef-3.7
 	sci-libs/lapack
-	sci-libs/onnx
+	<sci-libs/onnx-1.15
 	sci-libs/foxi
 	cuda? (
 		=dev-libs/cudnn-8*
